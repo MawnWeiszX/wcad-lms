@@ -1,0 +1,23 @@
+{
+  "name": "wcad-lms",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "check-types": "turbo check-types",
+    "dev:class": "turbo dev --filter=class",
+    "dev:portal": "turbo dev --filter=portal",
+    "dev:all": "turbo dev --filter=class --filter=portal",
+    "clean": "node -e \"const fs = require('fs'); ['apps/class/.next', 'apps/portal/.next', '.turbo', 'apps/class/.turbo', 'apps/portal/.turbo'].forEach(p => fs.rmSync(p, { recursive: true, force: true }))\""
+  },
+  "packageManager": "pnpm@9.15.4",
+  "pnpm": {
+    "overrides": {
+      "postcss": "^8.5.10"
+    }
+  },
+  "devDependencies": {
+    "turbo": "^2.9.0"
+  }
+}

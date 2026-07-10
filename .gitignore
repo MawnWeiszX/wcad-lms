@@ -1,0 +1,11 @@
+node_modules
+.next
+.turbo
+dist
+.env
+.env.local
+.env.*.local
+*.tsbuildinfo
+
+# Supabase CLI temp files (contienen referencias del proyecto)
+supabase/.temp/

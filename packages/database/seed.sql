@@ -1,0 +1,12 @@
+-- ============================================
+-- WCAD LMS — Datos de Prueba (Seed)
+-- ============================================
+-- NOTA: Estos datos son para desarrollo local.
+-- Los UUIDs de usuarios reales se crean via Auth.
+--
+-- Las categorías de ejemplo anteriores (Desarrollo Web,
+-- Diseño UX/UI, Marketing Digital, etc.) han sido removidas.
+--
+-- El administrador/instructor puede crear sus propias
+-- categorías desde el Portal en: /categories
+-- ============================================

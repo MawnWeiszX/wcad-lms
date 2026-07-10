@@ -1,0 +1,12 @@
+# Normalizar saltos de línea a LF en el repositorio (estilo Unix)
+* text=auto eol=lf
+
+# Binarios — no modificar
+*.ico binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.svg text eol=lf
+*.woff2 binary
+*.woff binary

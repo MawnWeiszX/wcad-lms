@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+/* ============================================
+   WCAD LMS — Sistema de Diseño
+   ============================================ */
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ── Variables de diseño (sobrescribibles en runtime) ── */
+:root {
+  --color-background: #f8fafc;       /* Fondo general */
+  --color-surface: #ffffff;          /* Tarjetas y componentes */
+  --color-surface-alt: #f1f5f9;      /* Fondos secundarios, inputs, menús */
+  --color-surface-hover: #f8fafc;    /* Hover de elementos interactivos */
+  --color-border: #e2e8f0;           /* Bordes y divisiones */
+  
+  --color-text: #0f172a;             /* Texto primario (alto énfasis) */
+  --color-text-secondary: #475569;   /* Texto secundario (medio énfasis) */
+  --color-text-muted: #94a3b8;       /* Texto deshabilitado o leyendas */
+  
+  --color-primary: #4f46e5;          /* Azul indigo WCAD */
+  --color-primary-hover: #4338ca;
+  --color-primary-light: #6366f1;
+  --color-accent-bg: #e0e7ff;        /* Fondo destacado activo */
+
+  --color-amber-bg: #fffbeb;
+  --color-amber-text: #b45309;
+  --color-amber-border: #fef3c7;
+
+  --color-disabled-bg: #f1f5f9;
+  --color-disabled-text: #94a3b8;
+}
+
+/* Dark mode */
+.dark {
+  --color-background: #0b0f17;       /* Fondo oscuro profundo */
+  --color-surface: #131a26;          /* Superficie de tarjetas en gris/azul */
+  --color-surface-alt: #1e293b;      /* Inputs y secciones secundarias oscurecidas */
+  --color-surface-hover: #2d3748;
+  --color-border: #2d3748;           /* Bordes menos contrastantes */
+  
+  --color-text: #f8fafc;             /* Texto claro en alto énfasis */
+  --color-text-secondary: #cbd5e1;   /* Texto en medio énfasis */
+  --color-text-muted: #64748b;
+  
+  --color-primary: #818cf8;          /* Indigo desaturado para modo oscuro */
+  --color-primary-hover: #6366f1;
+  --color-primary-light: #a5b4fc;
+  --color-accent-bg: rgba(99, 102, 241, 0.15);
+  
+  --color-amber-bg: rgba(146, 64, 14, 0.15);
+  --color-amber-text: #fcd34d;
+  --color-amber-border: rgba(251, 191, 36, 0.2);
+
+  --color-disabled-bg: rgba(30, 41, 59, 0.4);
+  --color-disabled-text: #475569;
+}
+
+@variant dark (&:where(.dark, .dark *));
+
+/* Base styles */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Animaciones ───────────────────────────── */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes pulse-ring {
+  0%   { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes count-up {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out both;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-count-up {
+  animation: count-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animation-delay-100 { animation-delay: 0.1s; }
+.animation-delay-200 { animation-delay: 0.2s; }
+.animation-delay-300 { animation-delay: 0.3s; }
+.animation-delay-400 { animation-delay: 0.4s; }
+.animation-delay-500 { animation-delay: 0.5s; }
+.animation-delay-600 { animation-delay: 0.6s; }
+
+/* ── Utilidades especiales ─────────────────── */
+.text-gradient {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.dark .glass-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glow-primary {
+  box-shadow: 0 0 40px rgba(99, 102, 241, 0.25);
+}
+
+.noise-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Scroll snap */
+@media (max-width: 768px) {
+  .scroll-snap-x {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .scroll-snap-x > * {
+    scroll-snap-align: start;
+  }
+}

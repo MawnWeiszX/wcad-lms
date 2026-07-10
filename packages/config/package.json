@@ -1,0 +1,12 @@
+{
+  "name": "@wcad/config",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    "./next": "./next.config.base.ts"
+  },
+  "devDependencies": {
+    "next": "15.5.19",
+    "typescript": "^5"
+  }
+}
