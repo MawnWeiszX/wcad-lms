@@ -48,7 +48,8 @@ export async function GET(request: NextRequest) {
         const response = NextResponse.redirect(redirectUrl);
 
         // Guardar cookie de modo activo compartida para el middleware del portal
-        const cookieDomain = process.env.NODE_ENV === 'production'
+        const host = request.headers.get('host') ?? '';
+        const cookieDomain = (process.env.NODE_ENV === 'production' && host.endsWith('wcadservice.com'))
           ? '.wcadservice.com'
           : undefined;
         

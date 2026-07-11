@@ -1,5 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import type { Database } from '@wcad/database';
 
 /**
@@ -8,6 +8,7 @@ import type { Database } from '@wcad/database';
  */
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies();
+  const reqHeaders = await headers();
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,10 +20,12 @@ export async function createServerSupabaseClient() {
         },
         setAll(cookiesToSet: Array<{ name: string; value: string; options?: any }>) {
           try {
+            const host = reqHeaders.get('host') ?? '';
+            const useSharedDomain = host.endsWith('wcadservice.com');
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, {
                 ...options,
-                ...(process.env.NODE_ENV === 'production' && {
+                ...(process.env.NODE_ENV === 'production' && useSharedDomain && {
                   domain: '.wcadservice.com',
                 }),
               })

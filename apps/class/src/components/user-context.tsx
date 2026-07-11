@@ -69,14 +69,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
           localStorage.setItem('modoActivo', initialModo);
 
           // Configurar la cookie compartida para accesibilidad en middleware
-          const cookieDomain = process.env.NODE_ENV === 'production' ? '; domain=.wcadservice.com; path=/' : '; path=/';
+          const hasSharedDomain = typeof window !== 'undefined' && window.location.hostname.endsWith('wcadservice.com');
+          const cookieDomain = (process.env.NODE_ENV === 'production' && hasSharedDomain) ? '; domain=.wcadservice.com; path=/' : '; path=/';
           document.cookie = `modoActivo=${initialModo}${cookieDomain}; max-age=31536000; SameSite=Lax`;
         } else {
           setUser(null);
           setRole(null);
           setModoActivoState('alumno');
           localStorage.removeItem('modoActivo');
-          document.cookie = `modoActivo=alumno${process.env.NODE_ENV === 'production' ? '; domain=.wcadservice.com' : ''}; path=/; max-age=0; SameSite=Lax`;
+          const hasSharedDomain = typeof window !== 'undefined' && window.location.hostname.endsWith('wcadservice.com');
+          document.cookie = `modoActivo=alumno${(process.env.NODE_ENV === 'production' && hasSharedDomain) ? '; domain=.wcadservice.com' : ''}; path=/; max-age=0; SameSite=Lax`;
         }
       } catch (err) {
         console.error('Error loading session profile:', err);
@@ -96,7 +98,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
         setRole(null);
         setModoActivoState('alumno');
         localStorage.removeItem('modoActivo');
-        const cookieDomain = process.env.NODE_ENV === 'production' ? '; domain=.wcadservice.com; path=/' : '; path=/';
+        const hasSharedDomain = typeof window !== 'undefined' && window.location.hostname.endsWith('wcadservice.com');
+        const cookieDomain = (process.env.NODE_ENV === 'production' && hasSharedDomain) ? '; domain=.wcadservice.com; path=/' : '; path=/';
         document.cookie = `modoActivo=alumno${cookieDomain}; max-age=0; SameSite=Lax`;
         setLoading(false);
       }
@@ -111,7 +114,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
     if (role === 'profesor') {
       setModoActivoState(modo);
       localStorage.setItem('modoActivo', modo);
-      const cookieDomain = process.env.NODE_ENV === 'production' ? '; domain=.wcadservice.com; path=/' : '; path=/';
+      const hasSharedDomain = typeof window !== 'undefined' && window.location.hostname.endsWith('wcadservice.com');
+      const cookieDomain = (process.env.NODE_ENV === 'production' && hasSharedDomain) ? '; domain=.wcadservice.com; path=/' : '; path=/';
       document.cookie = `modoActivo=${modo}${cookieDomain}; max-age=31536000; SameSite=Lax`;
     }
   };

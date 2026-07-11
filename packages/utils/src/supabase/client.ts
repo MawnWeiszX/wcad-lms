@@ -6,12 +6,15 @@ import type { Database } from '@wcad/database';
  * Usa las variables de entorno públicas NEXT_PUBLIC_*
  */
 export function createClient() {
+  const isProd = process.env.NODE_ENV === 'production';
+  const hasSharedDomain = typeof window !== 'undefined' && window.location.hostname.endsWith('wcadservice.com');
+
   return createBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookieOptions: {
-        domain: process.env.NODE_ENV === 'production' ? '.wcadservice.com' : undefined,
+        domain: (isProd && hasSharedDomain) ? '.wcadservice.com' : undefined,
         path: '/',
         sameSite: 'lax',
       },

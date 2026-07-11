@@ -19,6 +19,8 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet: Array<{ name: string; value: string; options?: any }>) {
+          const host = request.headers.get('host') ?? '';
+          const useSharedDomain = host.endsWith('wcadservice.com');
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
@@ -29,7 +31,7 @@ export async function updateSession(request: NextRequest) {
             supabaseResponse.cookies.set(name, value, {
               ...options,
               // Dominio compartido para cross-subdomain en producción
-              ...(process.env.NODE_ENV === 'production' && {
+              ...(process.env.NODE_ENV === 'production' && useSharedDomain && {
                 domain: '.wcadservice.com',
               }),
             })
