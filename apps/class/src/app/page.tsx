@@ -13,12 +13,12 @@ import {
   Waves,
   CloudRain,
   Mail,
-  ExternalLink,
   ShieldCheck,
   GraduationCap,
   ArrowRight,
   CheckCircle2,
   Globe,
+  Facebook,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -596,13 +596,13 @@ function ContactBanner() {
                 Contáctanos
               </a>
               <a
-                href="https://wcadservice.com/sobre-nosotros/"
+                href="https://www.facebook.com/p/Wcad-Service-100064626012224/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2.5 rounded-2xl border border-white/30 bg-white/10 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20 active:scale-[0.98]"
               >
-                <ExternalLink className="h-4 w-4" />
-                Sobre nosotros
+                <Facebook className="h-4 w-4" />
+                Facebook
               </a>
             </div>
           </div>
@@ -621,7 +621,7 @@ function Footer() {
           <div>
             <div className="flex items-center gap-2.5">
               <Image src="/logo.webp" alt="WCAD Logo" width={36} height={36} className="h-9 w-auto object-contain" />
-              <span className="text-lg font-bold text-[var(--color-text)]">WCAD Service</span>
+              <span className="text-lg font-bold text-[var(--color-text)]">Wcad Service</span>
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-[var(--color-text-secondary)]">
               Empresa especializada en formación, consultoría y asesoría en ingeniería hidráulica y sanitaria.
@@ -654,15 +654,9 @@ function Footer() {
                 </a>
               </li>
               <li>
-                <a href="https://wcadservice.com/sobre-nosotros/" target="_blank" rel="noopener noreferrer"
+                <a href="https://www.facebook.com/p/Wcad-Service-100064626012224/" target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-1.5 hover:text-[var(--color-primary)] transition-colors">
-                  <ExternalLink className="h-3.5 w-3.5" /> Sobre nosotros
-                </a>
-              </li>
-              <li>
-                <a href="https://wcadservice.com" target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 hover:text-[var(--color-primary)] transition-colors">
-                  <ExternalLink className="h-3.5 w-3.5" /> wcadservice.com
+                  <Facebook className="h-3.5 w-3.5" /> Facebook
                 </a>
               </li>
             </ul>
@@ -671,7 +665,7 @@ function Footer() {
 
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-[var(--color-border)] pt-8 sm:flex-row">
           <p className="text-sm text-[var(--color-text-muted)]">
-            © {new Date().getFullYear()} WCAD Service. Todos los derechos reservados.
+            © {new Date().getFullYear()} Wcad Service. Todos los derechos reservados.
           </p>
           <div className="flex gap-6 text-sm text-[var(--color-text-secondary)]">
             <a href="#" className="hover:text-[var(--color-text)] transition-colors">Términos</a>

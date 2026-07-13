@@ -128,7 +128,7 @@ export default async function CertificatesPage() {
               Aún no tienes certificados
             </h3>
             <p className="mt-2 mb-6 max-w-md text-sm text-[var(--color-text-secondary)]">
-              Completa el 100% de las lecciones de tus cursos activos para obtener tu certificación digital avalada por WCAD Service.
+              Completa el 100% de las lecciones de tus cursos activos para obtener tu certificación digital avalada por Wcad Service.
             </p>
             <Link
               href="/dashboard"

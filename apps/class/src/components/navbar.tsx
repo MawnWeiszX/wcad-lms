@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ExternalLink, Menu, X, Sun, Moon, User, LayoutDashboard, LogOut, ChevronDown, BookOpen, ShoppingCart } from 'lucide-react';
-import { signInWithGoogle } from '@/app/actions/auth';
+
 import { useUser } from '@/components/user-context';
 import { ModeToggle } from '@/components/mode-toggle';
 import { createClient } from '@wcad/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/cart-context';
+import { AuthModal } from '@/components/auth-modal';
 
 
 interface Props {
@@ -79,6 +80,7 @@ export function Navbar({ user: initialUser }: Props) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   useEffect(() => {
     const isDark = document.documentElement.classList.contains('dark');
@@ -104,11 +106,10 @@ export function Navbar({ user: initialUser }: Props) {
     setTheme(nextTheme);
   };
 
-  const navLinks = [
+  const navLinks: { href: string; label: string; external?: boolean }[] = [
     { href: '/courses', label: 'Cursos' },
     { href: '/#servicios', label: 'Servicios' },
     { href: '/#beneficios', label: 'Beneficios' },
-    { href: 'https://wcadservice.com/sobre-nosotros/', label: 'Nosotros', external: true },
   ];
 
   return (
@@ -233,17 +234,15 @@ export function Navbar({ user: initialUser }: Props) {
                    </div>
                  )}
                </div>
-             ) : (
-               <form action={() => signInWithGoogle('/dashboard')}>
-                 <button
-                   type="submit"
-                   id="btn-login"
-                   className="rounded-xl bg-[var(--color-primary)] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98] shadow-md shadow-[var(--color-primary)]/20 transition-all cursor-pointer"
-                 >
-                   Ingresar a Class
-                 </button>
-               </form>
-             )}
+              ) : (
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  id="btn-login"
+                  className="rounded-xl bg-[var(--color-primary)] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98] shadow-md shadow-[var(--color-primary)]/20 transition-all cursor-pointer"
+                >
+                  Ingresar a Class
+                </button>
+              )}
            </div>
  
            {/* Menú móvil */}
@@ -360,21 +359,26 @@ export function Navbar({ user: initialUser }: Props) {
                       Cerrar sesión
                     </button>
                  </>
-               ) : (
-                 <form action={() => signInWithGoogle('/dashboard')}>
-                   <button
-                     type="submit"
-                     onClick={() => setMobileOpen(false)}
-                     className="flex w-full items-center justify-center rounded-xl bg-[var(--color-primary)] py-2.5 text-sm font-semibold text-white shadow-md shadow-[var(--color-primary)]/20 transition-all cursor-pointer"
-                   >
-                     Ingresar a Class
-                   </button>
-                 </form>
-               )}
+                ) : (
+                  <button
+                    onClick={() => {
+                      setMobileOpen(false);
+                      setIsAuthModalOpen(true);
+                    }}
+                    className="flex w-full items-center justify-center rounded-xl bg-[var(--color-primary)] py-2.5 text-sm font-semibold text-white shadow-md shadow-[var(--color-primary)]/20 transition-all cursor-pointer"
+                  >
+                    Ingresar a Class
+                  </button>
+                )}
             </div>
           </div>
         )}
       </nav>
+      <AuthModal
+        open={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        redirectTo="/dashboard"
+      />
     </>
   );
 }

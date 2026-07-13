@@ -9,3 +9,5 @@ dist
 
 # Supabase CLI temp files (contienen referencias del proyecto)
 supabase/.temp/
+
+.vercel

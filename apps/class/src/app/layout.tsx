@@ -10,8 +10,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: 'WCAD — Formación en Ingeniería Hidráulica y Sanitaria',
-    template: '%s | WCAD Service',
+    default: 'Wcad Service - Formación En Ingeniería',
+    template: '%s | Wcad Service',
   },
   description:
     'Cursos y diplomados especializados en redes de agua potable, alcantarillado sanitario y drenaje pluvial urbano. Campus virtual 24/7, tutores expertos y certificación.',
@@ -26,12 +26,12 @@ export const metadata: Metadata = {
     'formación online',
   ],
   openGraph: {
-    title: 'WCAD — Formación en Ingeniería Hidráulica y Sanitaria',
+    title: 'Wcad Service - Formación En Ingeniería',
     description:
       'Cursos especializados en redes hidráulicas y sanitarias. Campus virtual, tutores expertos y certificados digitales.',
     type: 'website',
     locale: 'es_LA',
-    siteName: 'WCAD Service',
+    siteName: 'Wcad Service',
   },
 };
 

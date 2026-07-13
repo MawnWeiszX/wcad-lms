@@ -3,16 +3,17 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronRight, Loader2, Trash2, ShoppingCart, Lock } from 'lucide-react';
+import { ChevronRight, Loader2, Trash2, ShoppingCart } from 'lucide-react';
 import { Navbar } from '@/components/navbar';
 import { useCart } from '@/context/cart-context';
 import { useUser } from '@/components/user-context';
-import { signInWithGoogle } from '@/app/actions/auth';
+
 import { createClient } from '@wcad/utils/supabase/client';
 import { PaymentMethodSelector, PaymentMethodType } from '@/components/checkout/payment-method-selector';
 import { MercadoPagoBrick } from '@/components/checkout/mercadopago-brick';
 import { PayPalButton } from '@/components/checkout/paypal-button';
 import { YapePlinForm } from '@/components/checkout/yape-plin-form';
+import { AuthModal } from '@/components/auth-modal';
 
 interface VerifiedItem {
   id: string;
@@ -32,6 +33,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(true);
   const [method, setMethod] = useState<PaymentMethodType>('yape');
   const [notification, setNotification] = useState<string | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const isMpAvailable = !!process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY;
   const isPayPalAvailable = !!process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
@@ -180,20 +182,6 @@ export default function CheckoutPage() {
               Ver catálogo de cursos
             </Link>
           </div>
-        ) : !user ? (
-          <div className="flex flex-col items-center justify-center p-12 bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)] text-center max-w-md mx-auto mt-10">
-            <Lock className="h-16 w-16 text-[var(--color-text-muted)] mb-4" />
-            <h2 className="text-xl font-bold text-[var(--color-text)]">Inicia sesión para continuar</h2>
-            <p className="mt-2 text-sm text-[var(--color-text-secondary)] leading-relaxed">
-              Necesitamos que ingreses a tu cuenta para poder asociar los cursos que compres a tu perfil de estudiante de forma segura.
-            </p>
-            <button
-              onClick={() => signInWithGoogle('/checkout')}
-              className="mt-6 w-full flex justify-center rounded-xl bg-[var(--color-primary)] px-6 py-3 text-sm font-semibold text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.98] transition-all cursor-pointer shadow-md shadow-[var(--color-primary)]/20"
-            >
-              Ingresar con Google
-            </button>
-          </div>
         ) : (
           <div className="grid gap-8 md:grid-cols-3">
             {/* Formulario y Métodos de Pago */}
@@ -215,10 +203,19 @@ export default function CheckoutPage() {
                 {method === 'mercadopago' && isMpAvailable && (
                   <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
                     <h3 className="text-base font-bold text-[var(--color-text)] mb-4 text-center">Pagar con tarjeta de crédito/débito</h3>
-                    <MercadoPagoBrick
-                      courseIds={verifiedCourseIds}
-                      amount={totalCalculado}
-                    />
+                    {!user ? (
+                      <button
+                        onClick={() => setIsAuthModalOpen(true)}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] py-3 text-sm font-semibold text-white hover:bg-[var(--color-primary-hover)] active:scale-[0.99] transition-all cursor-pointer shadow-md shadow-[var(--color-primary)]/10"
+                      >
+                        Ingresar para pagar con tarjeta
+                      </button>
+                    ) : (
+                      <MercadoPagoBrick
+                        courseIds={verifiedCourseIds}
+                        amount={totalCalculado}
+                      />
+                    )}
                   </div>
                 )}
 
@@ -228,9 +225,18 @@ export default function CheckoutPage() {
                     <p className="text-xs text-[var(--color-text-secondary)] text-center">
                       Serás redirigido a una ventana emergente segura de PayPal para finalizar tu pago de S/ {totalCalculado.toFixed(2)}.
                     </p>
-                    <PayPalButton
-                      courseIds={verifiedCourseIds}
-                    />
+                    {!user ? (
+                      <button
+                        onClick={() => setIsAuthModalOpen(true)}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#ffc439] py-3 text-sm font-bold text-slate-800 hover:bg-[#e2af30] active:scale-[0.99] transition-all cursor-pointer shadow-md shadow-[#ffc439]/10"
+                      >
+                        Ingresar para pagar con PayPal
+                      </button>
+                    ) : (
+                      <PayPalButton
+                        courseIds={verifiedCourseIds}
+                      />
+                    )}
                   </div>
                 )}
 
@@ -239,6 +245,8 @@ export default function CheckoutPage() {
                     courseIds={verifiedCourseIds}
                     amount={totalCalculado}
                     method={method}
+                    isLoggedIn={!!user}
+                    onRequiredLogin={() => setIsAuthModalOpen(true)}
                   />
                 )}
               </div>
@@ -307,6 +315,12 @@ export default function CheckoutPage() {
           </div>
         )}
       </div>
+
+      <AuthModal
+        open={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        redirectTo="/checkout"
+      />
     </div>
   );
 }

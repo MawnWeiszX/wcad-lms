@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { signInWithGoogle } from '@/app/actions/auth';
 import { X, Droplets, Loader2 } from 'lucide-react';
-import { useFormStatus } from 'react-dom';
+import { useFormStatus, createPortal } from 'react-dom';
+import Script from 'next/script';
+import { createClient } from '@wcad/utils/supabase/client';
 
 // ── Botón Google con estado de carga ─────────────────────────
 function GoogleButton() {
@@ -52,6 +55,129 @@ interface Props {
 
 export function AuthModal({ open, onClose, redirectTo }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [scriptLoaded, setScriptLoaded] = useState(false);
+  const [useFallback, setUseFallback] = useState(false);
+  const supabase = createClient();
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Temporizador para activar el fallback si el script de Google no carga (por ejemplo, bloqueado por CSP o extensiones)
+  useEffect(() => {
+    if (clientId && !scriptLoaded && open) {
+      const timer = setTimeout(() => {
+        if (!(window as any).google) {
+          console.warn('DEBUG [AuthModal] Google GSI script no cargó en 2.5s. Activando fallback a redirección clásica.');
+          setUseFallback(true);
+        }
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [clientId, scriptLoaded, open]);
+
+  // Temporizador para activar el fallback si el script cargó pero falló al renderizar el botón (por ejemplo, origen no autorizado)
+  useEffect(() => {
+    if (clientId && scriptLoaded && open && !useFallback) {
+      const timer = setTimeout(() => {
+        const container = document.getElementById('google-signin-btn-container');
+        if (container && container.children.length === 0) {
+          console.warn('DEBUG [AuthModal] El botón oficial de Google no se renderizó (posible origen no autorizado o error de inicialización). Activando fallback.');
+          setUseFallback(true);
+        }
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [clientId, scriptLoaded, open, useFallback]);
+
+  // Callback para recibir el ID Token de Google e iniciar sesión
+  const handleCredentialResponse = useCallback(async (response: any) => {
+    setIsSigningIn(true);
+    setErrorMsg(null);
+    try {
+      const idToken = response.credential;
+      const { error } = await supabase.auth.signInWithIdToken({
+        provider: 'google',
+        token: idToken,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Obtener el perfil para redirigir según el rol del usuario
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = (await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()) as any;
+
+        const isProfesor =
+          profile?.role === 'profesor' ||
+          profile?.role === 'teacher' ||
+          profile?.role === 'admin';
+
+        const initialModo = isProfesor ? 'profesor' : 'alumno';
+
+        // Configurar la cookie de modo activo de inmediato para el middleware
+        const hasSharedDomain = typeof window !== 'undefined' && window.location.hostname.endsWith('wcadservice.com');
+        const cookieDomain = (process.env.NODE_ENV === 'production' && hasSharedDomain) ? '; domain=.wcadservice.com; path=/' : '; path=/';
+        document.cookie = `modoActivo=${initialModo}${cookieDomain}; max-age=31536000; SameSite=Lax`;
+
+        // Redirección basada en el rol
+        if (isProfesor) {
+          const portalUrl = process.env.NEXT_PUBLIC_PORTAL_URL ?? 'http://localhost:3001';
+          window.location.href = `${portalUrl}/dashboard`;
+        } else {
+          window.location.href = redirectTo || '/dashboard';
+        }
+      }
+    } catch (err: any) {
+      console.error('Error during GSI Sign-In:', err);
+      setErrorMsg(err.message || 'Error al iniciar sesión con Google');
+      setIsSigningIn(false);
+    }
+  }, [supabase, redirectTo]);
+
+  // Verificar si la biblioteca ya fue cargada previamente
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).google) {
+      setScriptLoaded(true);
+    }
+  }, []);
+
+  // Inicializar y renderizar el botón oficial de Google
+  useEffect(() => {
+    if (clientId && scriptLoaded && typeof window !== 'undefined' && (window as any).google) {
+      const google = (window as any).google;
+      try {
+        google.accounts.id.initialize({
+          client_id: clientId,
+          callback: handleCredentialResponse,
+          auto_select: false,
+        });
+
+        google.accounts.id.renderButton(
+          document.getElementById('google-signin-btn-container'),
+          {
+            theme: 'outline',
+            size: 'large',
+            width: 320,
+            shape: 'rectangular',
+            text: 'signin_with',
+          }
+        );
+      } catch (err) {
+        console.error('Failed to initialize Google GSI:', err);
+      }
+    }
+  }, [clientId, scriptLoaded, open, handleCredentialResponse]);
 
   // Cerrar con Escape
   useEffect(() => {
@@ -68,11 +194,11 @@ export function AuthModal({ open, onClose, redirectTo }: Props) {
     return () => { document.body.style.overflow = ''; };
   }, [open]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
   const signInAction = signInWithGoogle.bind(null, redirectTo);
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6"
       role="dialog"
@@ -116,10 +242,35 @@ export function AuthModal({ open, onClose, redirectTo }: Props) {
           </p>
         </div>
 
-        {/* Botón Google */}
-        <form action={signInAction}>
-          <GoogleButton />
-        </form>
+        {/* Botón Google (GSI con fallback a redirect clásico) */}
+        {clientId && !useFallback ? (
+          <div className="relative">
+            <Script
+              src="https://accounts.google.com/gsi/client"
+              onLoad={() => setScriptLoaded(true)}
+              onError={() => {
+                console.error('DEBUG [AuthModal] Error al cargar script GSI. Activando fallback.');
+                setUseFallback(true);
+              }}
+              strategy="afterInteractive"
+            />
+            {isSigningIn ? (
+              <div className="flex w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white py-3.5 text-sm font-medium text-slate-700 shadow-sm">
+                <Loader2 className="h-5 w-5 animate-spin text-[var(--color-primary)]" />
+                <span>Iniciando sesión...</span>
+              </div>
+            ) : (
+              <div id="google-signin-btn-container" className="w-full min-h-[46px] flex justify-center" />
+            )}
+            {errorMsg && (
+              <p className="mt-2 text-center text-xs text-red-600 font-medium">{errorMsg}</p>
+            )}
+          </div>
+        ) : (
+          <form action={signInAction}>
+            <GoogleButton />
+          </form>
+        )}
 
         {/* Línea divisoria */}
         <div className="my-6 border-t border-slate-100" />
@@ -153,6 +304,7 @@ export function AuthModal({ open, onClose, redirectTo }: Props) {
           .
         </p>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

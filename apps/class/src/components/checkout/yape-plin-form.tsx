@@ -7,9 +7,11 @@ interface Props {
   courseIds: string[];
   amount: number;
   method: 'yape' | 'plin';
+  isLoggedIn?: boolean;
+  onRequiredLogin?: () => void;
 }
 
-export function YapePlinForm({ courseIds, amount, method }: Props) {
+export function YapePlinForm({ courseIds, amount, method, isLoggedIn = true, onRequiredLogin }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -32,8 +34,19 @@ export function YapePlinForm({ courseIds, amount, method }: Props) {
     }
   };
 
+  const handleUploadClick = (e: React.MouseEvent) => {
+    if (!isLoggedIn) {
+      e.preventDefault();
+      onRequiredLogin?.();
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isLoggedIn) {
+      onRequiredLogin?.();
+      return;
+    }
     if (!file) {
       setErrorMsg('Por favor selecciona la captura de pantalla de tu pago.');
       return;
@@ -123,7 +136,10 @@ export function YapePlinForm({ courseIds, amount, method }: Props) {
           <div className="space-y-1 text-center">
             <Upload className="mx-auto h-8 w-8 text-[var(--color-text-muted)]" />
             <div className="flex text-sm text-[var(--color-text-secondary)] justify-center">
-              <label className="relative cursor-pointer rounded-md font-semibold text-[var(--color-primary)] focus-within:outline-none hover:underline">
+              <label 
+                onClick={handleUploadClick}
+                className="relative cursor-pointer rounded-md font-semibold text-[var(--color-primary)] focus-within:outline-none hover:underline"
+              >
                 <span>Seleccionar comprobante</span>
                 <input
                   type="file"
