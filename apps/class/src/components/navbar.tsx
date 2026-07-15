@@ -122,7 +122,7 @@ export function Navbar({ user: initialUser }: Props) {
             <Image src="/logo.webp" alt="WCAD Logo" width={36} height={36} className="h-9 w-auto object-contain" />
             <div>
               <span className="text-xl font-bold tracking-tight text-[var(--color-text)]">WCAD</span>
-              <span className="ml-1.5 text-xs text-[var(--color-text-muted)]">Service</span>
+              <span className="ml-1.5 text-xl font-semibold text-[var(--color-text-secondary)]">Service</span>
             </div>
           </Link>
 
